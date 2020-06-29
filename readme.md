@@ -27,14 +27,6 @@ make migration version=YOUR_VERSION_NUMBER filename=YOUR_FILE_NAME
 ```shell script
 make domain name=YOUR_DOMAIN_NAME
 ```
-3. Docker Image Build
-```shell script
-make build
-```
-4. Docker Image Push
-```shell script
-make push
-```
 
 ## Service
 #### Top Up
