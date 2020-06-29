@@ -1,6 +1,6 @@
 package wallet
 
-type Wallet struct {
+type Model struct {
 	Id string
 	Account WalletAccount
 }
