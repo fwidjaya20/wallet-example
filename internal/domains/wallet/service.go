@@ -2,10 +2,12 @@ package wallet
 
 import (
 	"context"
+	"fmt"
 	"github.com/fwidjaya20/wallet-example/internal/databases/models/wallet_balance_event"
 	"github.com/fwidjaya20/wallet-example/internal/domains/wallet/models"
 	"github.com/fwidjaya20/wallet-example/internal/domains/wallet/repositories"
 	"github.com/fwidjaya20/wallet-example/internal/domains/wallet/values/balance"
+	"github.com/fwidjaya20/wallet-example/internal/domains/wallet/values/withdraw"
 	libError "github.com/fwidjaya20/wallet-example/lib/error"
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
@@ -93,6 +95,40 @@ func (s *service) GetTransaction(ctx context.Context, payload models.GetTransact
 	}
 
 	return result, nil
+}
+
+func (s *service) Withdraw(ctx context.Context, payload models.Withdraw) error {
+	logger := log.With(s.logger, "METHOD", "Withdraw()")
+
+	var err error
+
+	balanceId, err := uuid.NewRandom()
+	if nil != err {
+		_ = level.Error(logger).Log("create_uuid_failed", err)
+		return libError.NewError(err, http.StatusInternalServerError, "create_uuid_failed")
+	}
+
+	transId, err := uuid.NewRandom()
+	if nil != err {
+		_ = level.Error(logger).Log("create_uuid_failed", err)
+		return libError.NewError(err, http.StatusInternalServerError, "create_uuid_failed")
+	}
+
+	err = s.repository.StoreEvent(ctx, &wallet_balance_event.Model{
+		Id:            balanceId.String(),
+		WalletId:      payload.WalletId,
+		TransactionId: transId.String(),
+		Amount:        payload.Amount * -1,
+		BalanceType:   balance.WITHDRAW,
+		Notes:         fmt.Sprintf(`{"message": "withdraw", "amount": %f, "fee": %d, "withdraw_destination": {"bank": "%s", "account_holder": "%s", "account_number": "%s"}}`, payload.Amount, withdraw.FEE, payload.Bank, payload.AccountHolder, payload.AccountNumber),
+	})
+
+	if nil != err {
+		_ = level.Error(logger).Log("Error", err)
+		return libError.NewError(err, http.StatusInternalServerError, "create_withdraw_error")
+	}
+
+	return nil
 }
 
 func NewWalletService(

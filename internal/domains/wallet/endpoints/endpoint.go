@@ -27,6 +27,23 @@ func TopUp(service wallet.UseCase) endpoint.Endpoint {
 	}
 }
 
+func Withdraw(service wallet.UseCase) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
+		payload := request.(*models.Withdraw)
+
+		err = database.RunInTransaction(ctx, globals.DB(), func(ctx context.Context) error {
+			err = service.Withdraw(ctx, *payload)
+			return err
+		})
+
+		return libHttp.Response(ctx, map[string]interface{}{
+			"job": "Withdraw",
+			"amount": payload.Amount,
+			"status": "succeed",
+		}, nil), err
+	}
+}
+
 func GetBalance(service wallet.UseCase) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
 		payload := request.(*models.GetBalanceRequest)
