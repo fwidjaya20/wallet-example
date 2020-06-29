@@ -1,0 +1,1 @@
+ALTER TABLE "wallet_balance_events" ADD COLUMN "transaction_id" UUID;
