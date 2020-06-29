@@ -16,3 +16,19 @@ func TopUp(service wallet.UseCase, opts []kitHttp.ServerOption) http.HandlerFunc
 		}, opts).ServeHTTP(w, r)
 	}
 }
+
+func GetBalance(service wallet.UseCase, opts []kitHttp.ServerOption) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		server.NewHTTPServer(endpoints.GetBalance(service), server.HTTPOption{
+			DecodeModel: &models.GetBalanceRequest{},
+		}, opts).ServeHTTP(w, r)
+	}
+}
+
+func GetEvent(service wallet.UseCase, opts []kitHttp.ServerOption) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		server.NewHTTPServer(endpoints.GetEvent(service), server.HTTPOption{
+			DecodeModel: &models.GetTransactionEvent{},
+		}, opts).ServeHTTP(w, r)
+	}
+}

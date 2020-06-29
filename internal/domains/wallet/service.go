@@ -47,18 +47,42 @@ func (s *service) Deposit(ctx context.Context, payload models.TopUpRequest) erro
 
 	if nil != err {
 		_ = level.Error(logger).Log("Error", err)
-		return libError.NewError(err, http.StatusInternalServerError, "create_deposit_failed")
+		return libError.NewError(err, http.StatusInternalServerError, "create_deposit_error")
 	}
 
 	return nil
 }
 
 func (s *service) GetBalance(ctx context.Context, payload models.GetBalanceRequest) (*models.Balance, error) {
-	panic("implement me")
+	logger := log.With(s.logger, "METHOD", "GetBalance()")
+
+	var result *models.Balance
+	var err error
+
+	result, err = s.repository.GetBalance(ctx, payload.WalletId)
+
+	if nil != err {
+		_ = level.Error(logger).Log("Error", err)
+		return nil, libError.NewError(err, http.StatusInternalServerError, "get_wallet_balance_error")
+	}
+
+	return result, nil
 }
 
 func (s *service) GetEvent(ctx context.Context, payload models.GetTransactionEvent) ([]*wallet_balance_event.Model, error) {
-	panic("implement me")
+	logger := log.With(s.logger, "METHOD", "GetEvent()")
+
+	var result []*wallet_balance_event.Model
+	var err error
+
+	result, err = s.repository.GetEvents(ctx, payload.WalletId)
+
+	if nil != err {
+		_ = level.Error(logger).Log("Error", err)
+		return nil, libError.NewError(err, http.StatusInternalServerError, "get_wallet_event_error")
+	}
+
+	return result, nil
 }
 
 func NewWalletService(

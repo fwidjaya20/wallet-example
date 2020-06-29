@@ -22,3 +22,29 @@ func TopUp(service wallet.UseCase) endpoint.Endpoint {
 		return libHttp.Response(ctx, response, nil), err
 	}
 }
+
+func GetBalance(service wallet.UseCase) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
+		payload := request.(*models.GetBalanceRequest)
+
+		err = database.RunInTransaction(ctx, globals.DB(), func(ctx context.Context) error {
+			response, err = service.GetBalance(ctx, *payload)
+			return err
+		})
+
+		return libHttp.Response(ctx, response, nil), err
+	}
+}
+
+func GetEvent(service wallet.UseCase) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
+		payload := request.(*models.GetTransactionEvent)
+
+		err = database.RunInTransaction(ctx, globals.DB(), func(ctx context.Context) error {
+			response, err = service.GetEvent(ctx, *payload)
+			return err
+		})
+
+		return libHttp.Response(ctx, response, nil), err
+	}
+}

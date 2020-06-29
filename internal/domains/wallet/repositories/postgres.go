@@ -8,6 +8,7 @@ import (
 	"github.com/fwidjaya20/wallet-example/internal/domains/wallet/models"
 	"github.com/fwidjaya20/wallet-example/internal/globals"
 	"github.com/google/uuid"
+	"github.com/jmoiron/sqlx"
 	"strings"
 )
 
@@ -27,12 +28,42 @@ func (p *postgres) StoreEvent(ctx context.Context, model *wallet_balance_event.M
 	return err
 }
 
-func (p *postgres) GetBalance(ctx context.Context, walletId uuid.UUID) (*models.Balance, error) {
-	panic("implement me")
+func (p *postgres) GetBalance(ctx context.Context, walletId string) (*models.Balance, error) {
+	snapshot, err := p.getLastSnapshot(ctx, walletId)
+
+	if nil != err {
+		return nil, err
+	}
+
+	return &models.Balance{
+		Balance: snapshot.Balance,
+	}, nil
 }
 
-func (p *postgres) GetEvents(ctx context.Context, transactionId uuid.UUID) ([]*wallet_balance_snapshot.Model, error) {
-	panic("implement me")
+func (p *postgres) GetEvents(ctx context.Context, walletId string) ([]*wallet_balance_event.Model, error) {
+	var result []*wallet_balance_event.Model
+	var err error
+	var rows *sqlx.Rows
+
+	query, args := p.buildGetEventQuery(walletId)
+	rows, err = globals.GetQuery(ctx).NamedQueryxContext(ctx, query, args)
+
+	if nil != err {
+		return nil, err
+	}
+
+	for rows.Next() {
+		var model wallet_balance_event.Model
+		err = rows.StructScan(&model)
+		if nil != err {
+			return nil, err
+		}
+		result = append(result, &model)
+	}
+
+	_ = rows.Close()
+
+	return result, err
 }
 
 func NewWalletRepository() Interface {
@@ -128,6 +159,20 @@ func (p *postgres) buildCreateSnapshotQuery(model wallet_balance_snapshot.Model)
 	arg["balance"] = model.Balance
 	arg["lastEventId"] = model.LastEventId
 	arg["createdBy"] = "SYSTEM"
+
+	return query.String(), arg
+}
+
+func (p *postgres) buildGetEventQuery(walletId string) (string, interface{}) {
+	var query strings.Builder
+	var arg map[string]interface{} = make(map[string]interface{})
+
+	query.WriteString(`SELECT "id", "wallet_id", "transaction_id", "amount", "balance_type", "notes" `)
+	query.WriteString(`FROM "wallet_balance_events" `)
+	query.WriteString(`WHERE "wallet_id"=:walletId `)
+	query.WriteString(`ORDER BY "created_at" DESC `)
+
+	arg["walletId"] = walletId
 
 	return query.String(), arg
 }

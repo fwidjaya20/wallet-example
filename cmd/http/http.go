@@ -15,7 +15,7 @@ func MakeHandler(
 	opts := []kitHttp.ServerOption{
 		kitHttp.ServerErrorEncoder(libServer.ErrorEncoder),
 	}
-
+	
 	generateWalletRoute(router, container, opts)
 
 	return router
@@ -23,6 +23,8 @@ func MakeHandler(
 
 func generateWalletRoute(router chi.Router, container container.Container, opts []kitHttp.ServerOption) {
 	router.Group(func(r chi.Router) {
-		r.Post("/top-up", walletHttpTransport.TopUp(container.WalletService, opts))
+		r.Post("/wallet/{wallet_id}/top-up", walletHttpTransport.TopUp(container.WalletService, opts))
+		r.Get("/wallet/{wallet_id}/balance", walletHttpTransport.GetBalance(container.WalletService, opts))
+		r.Get("/wallet/{wallet_id}/transactions", walletHttpTransport.GetEvent(container.WalletService, opts))
 	})
 }
