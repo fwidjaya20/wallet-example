@@ -69,17 +69,27 @@ func (s *service) GetBalance(ctx context.Context, payload models.GetBalanceReque
 	return result, nil
 }
 
-func (s *service) GetTransaction(ctx context.Context, payload models.GetTransactionEvent) ([]*wallet_balance_event.Model, error) {
+func (s *service) GetTransaction(ctx context.Context, payload models.GetTransactionEvent) ([]*models.TransactionEvent, error) {
 	logger := log.With(s.logger, "METHOD", "GetEvent()")
 
-	var result []*wallet_balance_event.Model
+	var model []*wallet_balance_event.Model
+	var result []*models.TransactionEvent
 	var err error
 
-	result, err = s.repository.GetEvents(ctx, payload.WalletId)
+	model, err = s.repository.GetEvents(ctx, payload.WalletId)
 
 	if nil != err {
 		_ = level.Error(logger).Log("Error", err)
 		return nil, libError.NewError(err, http.StatusInternalServerError, "get_wallet_event_error")
+	}
+
+	for _, v := range model {
+		result = append(result, &models.TransactionEvent{
+			TransactionId: v.TransactionId,
+			Amount:        v.Amount,
+			BalanceType:   v.BalanceType,
+			Notes:         v.Notes,
+		})
 	}
 
 	return result, nil

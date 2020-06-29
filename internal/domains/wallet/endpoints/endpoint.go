@@ -19,7 +19,11 @@ func TopUp(service wallet.UseCase) endpoint.Endpoint {
 			return err
 		})
 
-		return libHttp.Response(ctx, response, nil), err
+		return libHttp.Response(ctx, map[string]interface{}{
+			"job": "Top Up",
+			"amount": payload.Amount,
+			"status": "succeed",
+		}, nil), err
 	}
 }
 
