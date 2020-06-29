@@ -40,7 +40,7 @@ var defaultConfig = map[string]string{
 	DB_PASS:   "postgres",
 
 	// Migration and Seeder
-	MIGRATION_PATH: "internal/databases",
+	MIGRATION_PATH: "internal/databases/migrations",
 
 	// Transport
 	HTTP_ADDR: ":8001",
