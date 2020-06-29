@@ -69,7 +69,7 @@ func (s *service) GetBalance(ctx context.Context, payload models.GetBalanceReque
 	return result, nil
 }
 
-func (s *service) GetEvent(ctx context.Context, payload models.GetTransactionEvent) ([]*wallet_balance_event.Model, error) {
+func (s *service) GetTransaction(ctx context.Context, payload models.GetTransactionEvent) ([]*wallet_balance_event.Model, error) {
 	logger := log.With(s.logger, "METHOD", "GetEvent()")
 
 	var result []*wallet_balance_event.Model

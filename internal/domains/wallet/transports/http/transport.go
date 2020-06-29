@@ -25,9 +25,9 @@ func GetBalance(service wallet.UseCase, opts []kitHttp.ServerOption) http.Handle
 	}
 }
 
-func GetEvent(service wallet.UseCase, opts []kitHttp.ServerOption) http.HandlerFunc {
+func GetTransaction(service wallet.UseCase, opts []kitHttp.ServerOption) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		server.NewHTTPServer(endpoints.GetEvent(service), server.HTTPOption{
+		server.NewHTTPServer(endpoints.GetTransaction(service), server.HTTPOption{
 			DecodeModel: &models.GetTransactionEvent{},
 		}, opts).ServeHTTP(w, r)
 	}

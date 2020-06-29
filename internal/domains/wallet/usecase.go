@@ -9,5 +9,5 @@ import (
 type UseCase interface {
 	Deposit(ctx context.Context, payload models.TopUpRequest) error
 	GetBalance(ctx context.Context, payload models.GetBalanceRequest) (*models.Balance, error)
-	GetEvent(ctx context.Context, payload models.GetTransactionEvent) ([]*wallet_balance_event.Model, error)
+	GetTransaction(ctx context.Context, payload models.GetTransactionEvent) ([]*wallet_balance_event.Model, error)
 }

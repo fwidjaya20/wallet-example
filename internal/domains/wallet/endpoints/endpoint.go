@@ -36,12 +36,12 @@ func GetBalance(service wallet.UseCase) endpoint.Endpoint {
 	}
 }
 
-func GetEvent(service wallet.UseCase) endpoint.Endpoint {
+func GetTransaction(service wallet.UseCase) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
 		payload := request.(*models.GetTransactionEvent)
 
 		err = database.RunInTransaction(ctx, globals.DB(), func(ctx context.Context) error {
-			response, err = service.GetEvent(ctx, *payload)
+			response, err = service.GetTransaction(ctx, *payload)
 			return err
 		})
 
